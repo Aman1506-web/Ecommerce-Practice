@@ -5,13 +5,14 @@ import { useCartStore } from "@/lib/store/cart-store";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
+import Image from "next/image";
 
 export default function GuestCartPage() {
   const { isLoaded, isSignedIn } = useUser();
   // items from usecartStore
   const items = useCartStore((state) => state.items);
-  const increaseQuantity = useCartStore((state) => state.increaseQuantity)
-  const decreaseQuantity = useCartStore((state) => state.decreaseQuantity)
+  const increaseQuantity = useCartStore((state) => state.increaseQuantity);
+  const decreaseQuantity = useCartStore((state) => state.decreaseQuantity);
 
   //router
   const router = useRouter();
@@ -41,14 +42,16 @@ export default function GuestCartPage() {
           key={item._id}
           className="border p-4 rounded flex items-center gap-4"
         >
-          {/* 📸 Left side: Image */}
-          <img
+          {/* Left side: Image */}
+          <Image
             src={item.image}
             alt={item.title}
-            className="w-20 h-20 object-cover rounded"
+            width={80}
+            height={80}
+            className="object-cover rounded"
           />
 
-          {/* 📦 Right side: Title, Quantity, Price */}
+          {/*  Right side: Title, Quantity, Price */}
           <div className="flex justify-between w-full">
             <div>
               <h2 className="font-bold">{item.title}</h2>
