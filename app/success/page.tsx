@@ -1,33 +1,31 @@
 "use client";
 
 import { notFound } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 
-export default function SuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const {isLoaded, isSignedIn} = useUser();
+  const { isLoaded, isSignedIn } = useUser();
 
   const [valid, setValid] = useState(false);
   const [paymentId, setPaymentId] = useState("");
 
-
   useEffect(() => {
     const id = searchParams.get("paymentId");
     if (!id) {
-      notFound(); // Show 404 if no payment ID
+      notFound(); // 404 if no payment ID
     } else {
       setPaymentId(id);
       setValid(true);
     }
-  }, [searchParams, isLoaded, isSignedIn]);
+  }, [searchParams]);
 
-    // FIX: wait until clerk is fully loaded
-  if(!isLoaded) return null;
-  if(!isSignedIn) return notFound();
+  // Wait for Clerk
+  if (!isLoaded) return null;
+  if (!isSignedIn) return notFound();
   if (!valid) return null;
 
   return (
@@ -51,5 +49,13 @@ export default function SuccessPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
+      <SuccessContent />
+    </Suspense>
   );
 }

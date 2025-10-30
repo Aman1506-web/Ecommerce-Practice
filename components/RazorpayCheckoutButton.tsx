@@ -5,17 +5,17 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
+import type { UserResource } from "@clerk/types";
 
-// Type defined 
+/* ------------------------------------------------------ */
+/* 🔹 Razorpay Type Declarations                          */
+/* ------------------------------------------------------ */
 
-// Razorpay global window interface
 interface RazorpayWindow extends Window {
   Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
 }
-
 declare const window: RazorpayWindow;
 
-// Razorpay Options and Instance
 interface RazorpayOptions {
   key: string;
   amount: number;
@@ -43,7 +43,10 @@ interface RazorpayResponse {
   razorpay_signature: string;
 }
 
-// Cart item type
+/* ------------------------------------------------------ */
+/* 🔹 Data Types                                           */
+/* ------------------------------------------------------ */
+
 interface CartItem {
   _id: Id<"cart">;
   title: string;
@@ -51,19 +54,9 @@ interface CartItem {
   quantity: number;
 }
 
-// Clerk user type (minimal subset)
-interface ClerkUser {
-  id: string;
-  fullName?: string;
-  primaryEmailAddress?: {
-    emailAddress?: string;
-  };
-}
-
-// Props type
 type RazorpayButtonProps = {
   total: number;
-  user: ClerkUser;
+  user: UserResource | null; // ✅ matches Clerk's real user type
   cart: CartItem[];
 };
 
@@ -94,7 +87,6 @@ export default function RazorpayCheckoutButton({
     const data = await res.json();
     console.log("🧾 Razorpay Order Response:", data);
 
-    // create Razorpay options
     const options: RazorpayOptions = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? "",
       amount: data.amount,
@@ -121,7 +113,7 @@ export default function RazorpayCheckoutButton({
 
           // save order in DB
           await saveOrder({
-            userId: user.id,
+            userId: user?.id || "guest", // ✅ safe fallback
             paymentId: response.razorpay_payment_id,
             amount: total,
             timestamp: Date.now(),
@@ -134,7 +126,7 @@ export default function RazorpayCheckoutButton({
           });
 
           alert("🧾 Order Saved Successfully!");
-          await clearCart({ userId: user.id });
+          await clearCart({ userId: user?.id || "guest" });
           alert("🛒 Cart Cleared!");
           router.push(`/success?paymentId=${response.razorpay_payment_id}`);
         } else {
@@ -143,8 +135,8 @@ export default function RazorpayCheckoutButton({
       },
 
       prefill: {
-        name: user?.fullName || "Guest",
-        email: user?.primaryEmailAddress?.emailAddress || "",
+        name: user?.fullName ?? "Guest",
+        email: user?.primaryEmailAddress?.emailAddress ?? "",
       },
 
       theme: {
@@ -152,7 +144,6 @@ export default function RazorpayCheckoutButton({
       },
     };
 
-    // open Razorpay checkout window
     const razor = new window.Razorpay(options);
     razor.open();
   };
