@@ -7,6 +7,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useCartStore } from "@/lib/store/cart-store";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
+import Image from "next/image";
 
 export default function HomePage() {
   // Clerk Auth
@@ -45,12 +46,17 @@ export default function HomePage() {
               : items.find((i) => i._id === product._id);
 
             return (
-              <Card key={product._id} className="hover:shadow-lg transition p-2">
+              <Card
+                key={product._id}
+                className="hover:shadow-lg transition p-2"
+              >
                 <CardHeader>
                   <AspectRatio ratio={16 / 9}>
-                    <img
+                    <Image
                       src={product.image}
                       alt={product.title}
+                      width={500}
+                      height={300}
                       className="rounded-md object-cover w-full h-full"
                     />
                   </AspectRatio>
@@ -100,7 +106,6 @@ export default function HomePage() {
                               quantity: itemInCart.quantity - 1,
                             });
                           }
-                          
                         } else {
                           decreaseQuantity(product._id);
                         }
@@ -137,8 +142,4 @@ export default function HomePage() {
   );
 }
 
-
-
-
-
-/// itemInCart is jo check krta h ki product pehle se cart mein h ya nhi AND AGAR H TOH USE RETURN KRTA H 
+/// itemInCart is jo check krta h ki product pehle se cart mein h ya nhi AND AGAR H TOH USE RETURN KRTA H

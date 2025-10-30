@@ -15,7 +15,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <ClerkProvider>
       <html lang="en">
         <head>
-          {/* ✅ Load Razorpay checkout script here */}
+          {/* Load Razorpay checkout script here */}
           <Script
             src="https://checkout.razorpay.com/v1/checkout.js"
             strategy="afterInteractive"
