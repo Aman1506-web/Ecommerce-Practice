@@ -1,125 +1,166 @@
+"use client";
+
 import { Button } from "./ui/button";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
+import { Id } from "@/convex/_generated/dataModel";
 
-type Props = {
+// Type defined 
+
+// Razorpay global window interface
+interface RazorpayWindow extends Window {
+  Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
+}
+
+declare const window: RazorpayWindow;
+
+// Razorpay Options and Instance
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  order_id: string;
+  handler: (response: RazorpayResponse) => void;
+  prefill: {
+    name: string;
+    email: string;
+  };
+  theme?: {
+    color: string;
+  };
+}
+
+interface RazorpayInstance {
+  open: () => void;
+}
+
+interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}
+
+// Cart item type
+interface CartItem {
+  _id: Id<"cart">;
+  title: string;
+  price: number;
+  quantity: number;
+}
+
+// Clerk user type (minimal subset)
+interface ClerkUser {
+  id: string;
+  fullName?: string;
+  primaryEmailAddress?: {
+    emailAddress?: string;
+  };
+}
+
+// Props type
+type RazorpayButtonProps = {
   total: number;
-  user: any; // clerk user
-  cart: any[];
+  user: ClerkUser;
+  cart: CartItem[];
 };
 
+/* ------------------------------------------------------ */
+/* 🔹 Component                                            */
+/* ------------------------------------------------------ */
 
-export default function RazorpayCheckoutButton({ total, user, cart }: Props) {
-
-  //router
+export default function RazorpayCheckoutButton({
+  total,
+  user,
+  cart,
+}: RazorpayButtonProps) {
   const router = useRouter();
 
-  // convex functions
+  // convex mutations
   const saveOrder = useMutation(api.orders.saveOrder);
   const clearCart = useMutation(api.cart.clearCart);
 
-  // handleCheckout : main function which contains all
+  // main checkout handler
   const handleCheckout = async () => {
-    // handle POST req for order creation and give amount to backend and gets back order and order_id
-    const res = await fetch("api/razorpay/order", {
+    // create Razorpay order via backend route
+    const res = await fetch("/api/razorpay/order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ amount: Math.round(Number(total) * 100) }),
     });
 
-    // res obj from bckend
     const data = await res.json();
     console.log("🧾 Razorpay Order Response:", data);
 
-    // create Options for checkout ui
-    const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+    // create Razorpay options
+    const options: RazorpayOptions = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? "",
       amount: data.amount,
       currency: data.currency,
       name: "MY Store",
       description: "Order Payment",
       order_id: data.id,
 
-      // handler function: runs after payment
-      handler: async function (response: any) {
+      handler: async (response: RazorpayResponse) => {
         alert("🎉 Payment Successful!");
         console.log(response);
-        console.log("payment_id:", response.razorpay_payment_id);
-        console.log("order_id:", response.razorpay_order_id);
-        console.log("razorpay signature:", response.razorpay_signature);
 
-        //handle POST req for payment verification
         const verifyRes = await fetch("/api/razorpay/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-          }),
+          body: JSON.stringify(response),
         });
 
-        // get res in json
         const verifyData = await verifyRes.json();
         console.log("Verification result", verifyData);
 
-        //alert message if success true
         if (verifyData.success) {
-          console.log("✅ Payment verified server-side.");
           alert("✅ Payment Verified Successfully!");
 
-          // call mutation to save this order in database
+          // save order in DB
           await saveOrder({
             userId: user.id,
             paymentId: response.razorpay_payment_id,
-            amount:total,
+            amount: total,
             timestamp: Date.now(),
-            products: cart.map((item:any) => ({
+            products: cart.map((item) => ({
               productId: item._id,
               title: item.title,
               price: item.price,
               quantity: item.quantity,
-            }))
-          })
+            })),
+          });
 
-          alert("🧾 Order Saved Successfully!")
-
-          // Clear Cart after payment
-          await clearCart({userId: user.id})
-
-          alert("🛒 Cart cleared!");
-
-          // take to success route
-          router.push(`/success?paymentId=${response.razorpay_payment_id}`)
-
+          alert("🧾 Order Saved Successfully!");
+          await clearCart({ userId: user.id });
+          alert("🛒 Cart Cleared!");
+          router.push(`/success?paymentId=${response.razorpay_payment_id}`);
         } else {
-          console.warn("❌ Signature mismatch detected.");
           alert("❌ Payment Verification Failed");
         }
       },
 
-      // prefill details like name and email
       prefill: {
         name: user?.fullName || "Guest",
         email: user?.primaryEmailAddress?.emailAddress || "",
       },
 
-      // theme like color
       theme: {
         color: "#22c55e",
       },
     };
 
-    // open rzrpay checkout window using options
-    const razor = new (window as any).Razorpay(options);
+    // open Razorpay checkout window
+    const razor = new window.Razorpay(options);
     razor.open();
   };
 
   return (
     <Button
       onClick={handleCheckout}
-      className="bg-green-600 hover:bg-green-800 text-white w-full text-center rounded-2xlfont-bold"
+      className="bg-green-600 hover:bg-green-800 text-white w-full text-center rounded-2xl font-bold"
     >
       Pay ₹{total}
     </Button>

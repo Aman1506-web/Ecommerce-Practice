@@ -1,5 +1,4 @@
 import { mutation } from "./_generated/server";
-import { query } from "./_generated/server";
 import { v } from "convex/values"
 
 // SAVE ORDER IN DB AFTER PAYMENT

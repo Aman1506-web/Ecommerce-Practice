@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware"; // 👈 import persist middleware
+import { persist } from "zustand/middleware"; //  import persist middleware
 
 // shape of product stored in items
 type Product = {
