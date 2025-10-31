@@ -1,4 +1,4 @@
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { v } from "convex/values"
 
 // SAVE ORDER IN DB AFTER PAYMENT
@@ -36,6 +36,19 @@ export const saveOrder = mutation({
 
 })
 
+// GET ORDERS FOR A USER
+export const getUserOrders = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const orders = await ctx.db
+      .query("orders")
+      .filter(q => q.eq(q.field("userId"), args.userId))
+      .order("desc") // latest first
+      .collect();
+    return orders;
+  },
+});
+
 // get order by payment id - to verify that the payment id in URL belongs to logged-in uer
 // export const getOrderByPaymentId = query({
 //   args:{
@@ -62,7 +75,7 @@ export const saveOrder = mutation({
 
 
 // 💥 Why it’s important:
-// Future mein "My Orders" page bana sakega.
+// In Future  "My Orders" page.
 
-// Admin dashboard mein order analytics dikha sakega.
+// Admin dashboard contains order analytics.
 
