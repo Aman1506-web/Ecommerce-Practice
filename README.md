@@ -84,10 +84,11 @@ npm run dev
 
 ### 🌐 Deployment
 
-- Frontend & API Routes: Vercel
-- Backend Database: Convex
-- Auth: Clerk
-- Payments: Razorpay
+- **Frontend & API Routes:** [Vercel](https://vercel.com)
+- **Backend Database:** [Convex](https://convex.dev)
+- **Auth:** [Clerk](https://clerk.com)
+- **Payments:** [Razorpay](https://razorpay.com)
+
 
 ### 🔗 Live Demo
 
