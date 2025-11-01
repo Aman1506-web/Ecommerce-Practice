@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Ecommerce Practice — Next.js + Convex + Clerk + Razorpay
 
-## Getting Started
+Project Overview
 
-First, run the development server:
+This project was built to learn and practice backend integrations using modern full-stack tools.
+The focus is on functionality rather than UI — exploring how authentication, database, and payment systems work together inside a real application.
 
-```bash
+Tech Stack
+
+Next.js 15 (App Router + TypeScript) – Frontend framework
+
+Convex – Backend-as-a-service for database, queries, and mutations
+
+Clerk – Authentication and user management
+
+Zustand – State management for guest cart
+
+Razorpay – Payment gateway integration
+
+Tailwind CSS – Utility-first styling
+
+Core Features
+
+Authentication with Clerk – Login, signup, and role-based access (Admin/User)
+
+Convex Database
+
+Product CRUD
+
+Cart (Add, Remove, Update Quantity, Clear after payment)
+
+Orders (Saved automatically after successful payment)
+
+Razorpay Checkout
+
+Order creation from the frontend
+
+Payment verification on backend
+
+Order details saved in Convex
+
+Zustand Guest Cart – Persistent cart for non-logged-in users, synced to Convex after sign-in
+
+Role-Based Routing – Separate admin and user dashboards
+
+Minimal UI – Clean interface to visualize backend flow
+
+
+Getting Started
+1. Clone Repository
+git clone https://github.com/Aman1506-web/Ecommerce-Practice.git
+cd Ecommerce-Practice
+
+2. Install Dependencies
+npm install
+
+3. Environment Variables
+
+Create a .env.local file in the project root:
+
+NEXT_PUBLIC_CONVEX_URL=your_convex_url
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+NEXT_PUBLIC_RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+
+4. Run Development Server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Visit http://localhost:3000 in your browser.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Learning Goals
 
-## Learn More
+Understand how Next.js interacts with Convex backend.
 
-To learn more about Next.js, take a look at the following resources:
+Implement secure payments using Razorpay and handle verification.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Manage carts for both guest and authenticated users using Zustand + Convex.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Apply role-based access control with Clerk.
 
-## Deploy on Vercel
+Next Steps
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Add webhooks:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Clerk → Convex for automatic user syncing.
+
+Razorpay → Convex for verified payment confirmation.
+
+Improve UI/UX for production.
+
+Add admin dashboard analytics.
+
+Deployment
+
+Frontend & API Routes: Vercel
+
+Backend Database: Convex
+
+Auth: Clerk
+
+Payments: Razorpay
+
+Live Demo
+
+Website: https://ecommerce-practice-two.vercel.app
+
+Repository: https://github.com/Aman1506-web/Ecommerce-Practice
